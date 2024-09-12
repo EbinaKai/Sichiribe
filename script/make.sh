@@ -6,7 +6,7 @@ export CPPFLAGS="-I/opt/homebrew/opt/gettext/include"
 
 # ビルド
 echo "Starting build with Nuitka..."
-nuitka \
+python -m nuitka \
     --remove-output \
     --macos-create-app-bundle \
     --macos-app-name=Sichiribe \
