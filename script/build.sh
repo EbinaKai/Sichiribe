@@ -1,20 +1,7 @@
 #!/bin/bash
 
-# デフォルト値
-ARCH="arm64"
-
-# 引数の解析
-while getopts "a:" opt; do
-    case ${opt} in
-        a )
-            ARCH=$OPTARG
-            ;;
-        \? )
-            echo "Usage: cmd [-a arm64|x86_64]"
-            exit 1
-            ;;
-    esac
-done
+# アーキテクチャの指定
+ARCH=$(uname -m)
 
 # 環境変数設定
 if [ "$ARCH" = "x86_64" ]; then
