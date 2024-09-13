@@ -1,11 +1,34 @@
 #!/bin/bash
 
-# 環境変数
-export LDFLAGS="-L/opt/homebrew/opt/gettext/lib -lintl"
-export CPPFLAGS="-I/opt/homebrew/opt/gettext/include"
+# デフォルト値
+ARCH="arm64"
+
+# 引数の解析
+while getopts "a:" opt; do
+    case ${opt} in
+        a )
+            ARCH=$OPTARG
+            ;;
+        \? )
+            echo "Usage: cmd [-a arm64|x86_64]"
+            exit 1
+            ;;
+    esac
+done
+
+# 環境変数設定
+if [ "$ARCH" = "x86_64" ]; then
+    export CFLAGS="-arch x86_64"
+    export CXXFLAGS="-arch x86_64"
+    export LDFLAGS="-arch x86_64 -L/opt/homebrew/opt/gettext/lib -lintl"
+    export CPPFLAGS="-I/opt/homebrew/opt/gettext/include"
+else
+    export LDFLAGS="-L/opt/homebrew/opt/gettext/lib -lintl"
+    export CPPFLAGS="-I/opt/homebrew/opt/gettext/include"
+fi
 
 # ビルド
-echo "Starting build with Nuitka..."
+echo "Starting build with Nuitka for $ARCH..."
 python -m nuitka \
     --remove-output \
     --macos-create-app-bundle \
@@ -21,6 +44,12 @@ python -m nuitka \
 # Nuitkaのビルドが成功したかどうかを確認
 if [ $? -eq 0 ]; then
     echo "Nuitka build successful."
+    
+    # パッケージング
+    DMG_NAME="Sichiribe.dmg"
+    if [ "$ARCH" = "x86_64" ]; then
+        DMG_NAME="Sichiribe_x86_64.dmg"
+    fi
 
     # パッケージング
     rm -f Sichiribe.dmg
@@ -29,7 +58,7 @@ if [ $? -eq 0 ]; then
                --background "script/background.png" \
                --icon "Sichiribe.app" 200 240 \
                --app-drop-link 550 240 \
-               Sichiribe.dmg \
+               "$DMG_NAME" \
                Sichiribe.app
 
     echo "DMG created!"
@@ -38,5 +67,5 @@ else
 fi
 
 # 不要なファイルを削除
-rm -rf Sichiribe.app
+# rm -rf Sichiribe.app
 rm -rf Sichiribe.dist
