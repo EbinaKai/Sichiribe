@@ -8,6 +8,9 @@ exec > >(tee -i "$LOGFILE") 2>&1
 ARCH=$(uname -m)
 cd ~
 
+# デフォルトのPythonバイナリは `python` とするが、`PYTHON` が指定されていればそれを使用
+PYTHON_BIN=${PYTHON:-python}
+
 # tensorflow-src ディレクトリが存在しない場合にクローン
 if [ ! -d "tensorflow-src" ]; then
     git clone https://github.com/tensorflow/tensorflow tensorflow-src
@@ -15,15 +18,25 @@ fi
 cd tensorflow-src
 
 # ビルド環境を作成
-python -m venv env 
+$PYTHON_BIN -m venv env 
 source ./env/bin/activate
 pip install numpy wheel pybind11
 
-# MacOS用にビルドを実行
-CUSTOM_BAZEL_FLAGS=--macos_cpus=$ARCH tensorflow/lite/tools/pip_package/build_pip_package_with_bazel.sh
+# アーキテクチャに基づいて対応する CPU フラグを設定
+if [ "$ARCH" == "arm64" ]; then
+    CPU_FLAG="darwin_arm64"
+elif [ "$ARCH" == "x86_64" ]; then
+    CPU_FLAG="darwin_x86_64"
+else
+    echo "Unsupported architecture: $ARCH"
+    exit 1
+fi
+
+# CUSTOM_BAZEL_FLAGS にアーキテクチャに基づいた CPU フラグを含めて、MacOS用にビルドを実行
+CI_BUILD_PYTHON=$PYTHON_BIN CUSTOM_BAZEL_FLAGS="--config=macos --cpu=$CPU_FLAG -c opt" tensorflow/lite/tools/pip_package/build_pip_package_with_bazel.sh
 
 # ビルド済みwhlパッケージを確認
-WHL_FILE=$(ls ~/tensorflow-src/tensorflow/lite/tools/pip_package/gen/tflite_pip/python3/dist/*.whl)
+WHL_FILE=$(ls ~/tensorflow-src/tensorflow/lite/tools/pip_package/gen/tflite_pip/$PYTHON_BIN/dist/*.whl)
 
 # ビルド環境をから抜ける
 deactivate
@@ -34,7 +47,7 @@ rm -rf sichiribe-src
 git clone https://github.com/EbinaKai/Sichiribe.git sichiribe-src
 cd sichiribe-src
 git checkout feature/app/macos
-python -m venv env
+$PYTHON_BIN -m venv env
 source ./env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
