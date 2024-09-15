@@ -30,9 +30,9 @@ deactivate
 
 # アプリケーションのビルド環境を作成
 cd ~
-rm -rf Sichiribe
-git clone https://github.com/EbinaKai/Sichiribe.git
-cd Sichiribe
+rm -rf sichiribe-src
+git clone https://github.com/EbinaKai/Sichiribe.git sichiribe-src
+cd sichiribe-src
 git checkout feature/app/macos
 python -m venv env
 source ./env/bin/activate

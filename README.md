@@ -33,6 +33,29 @@
 
 ## Init
 
+### Installation
+
+とりあえず下記のスクリプトを使えば、一括でGUIアプリがビルドされる。スクリプト内で必要なものはインストールされるため、このリポジトリをクローンする必要はない。  
+
+ビルドに `Bazel` が必要なので、[公式サイト](https://bazel.build/install/os-x) を参照して事前にインストールすること。
+
+> Macアプリは [Apple Developer Program](https://developer.apple.com/programs/) に登録して署名しないと配布が難しいので、各自ビルドして使ってほしい。  
+> 学生に $99 は高いよね…
+
+```bash
+# スクリプトをダウンロード
+curl -L -o install.sh https://raw.githubusercontent.com/EbinaKai/Sichiribe/feature/app/macos/script/install.sh
+
+# 実行権限を付与
+chmod +x install.sh
+
+# tensorflow-runtimeのビルド・Sichiribe.appの構築
+./install.sh
+```
+
+### Source Code Startup
+
+ソースコードから実行する場合を以下を参考にしてほしい。
 仮想環境の作成等はMacOS・Linuxに準拠するため、Windowsで実行する際などは適宜読み替えてほしい。  
 また、Linux環境以外で `tflite-runtime` を用いたい場合は [about_tensorflow.md](./docs/about_tensorflow.md) を参照するとよい。
 
@@ -58,11 +81,13 @@ pip install tensorflow-metal # macosでGPUを用いる場合はこれも
 pip install tflite-runtime # linux環境でモデルの学習をしない場合
 ```
 
-## Install model
+### Install model
 
 学習済モデルは、[Github | Release v0.1.2](https://github.com/EbinaKai/Sichiribe/releases/tag/v0.1.2) においてあるので、そこからダウンロードして `model/` フォルダを作成して設置する。
 
-## GUI Execution
+## Execution
+
+### GUI Execution
 
 GUIでの諸項目の実行を行うには以下のコマンドを実行する。
 
@@ -74,7 +99,7 @@ python Sichiribe.py
 
 ![screen flow](https://github.com/user-attachments/assets/70d2a21f-0cb9-4074-a5c2-0449ed2b64eb)
 
-## REPLAY Execution
+### REPLAY Execution
 
 7セグメント表示器を撮影した動画から表示内容を解析するには `replay.py` を実行する。  
 パラメータを設定することができ、実行時に指定できる。実行例を以下に示す。
@@ -87,9 +112,9 @@ python3 replay.py test/sample.mp4
 python3 replay.py test/sample.mp4 --num-digits 4 --sampling-sec 5 --num-frames 30 --skip-sec 0 --format csv --save-frame --debug
 ```
 
-### replay.py Arguments
+#### Arguments of replay.py
 
-これらの引数は動画のパス以外はオプションなので、含めずに実行することも可能である。
+動画のパス以外はオプションなので、含めずに実行することも可能である。
 
 | 引数 | 説明 |  
 | --- | --- |  
@@ -102,7 +127,19 @@ python3 replay.py test/sample.mp4 --num-digits 4 --sampling-sec 5 --num-frames 3
 | --save-frame | キャプチャしたフレームを保存するか（保存しない場合、メモリの使用量が増加します） |
 | --debug | ログをデバッグモードにする場合は含める |
 
-## Live Execution
+#### Process Flow Configuration of replay.py
+
+1. 指定された引数を元に設定を適用
+2. カメラ画角の確認
+3. 7セグメント表示器が写っている部分をクロップする
+   1. クロップ部分を選択後、確認のウィンドウが立ち上がるが小さい場合があるので注意
+   2. 確認ウィンドウがアクティブな状態で y/n のどちらかを押下する
+4. クロップした部分を解析して表示内容を読み取る
+   1. 設定された頻度でサンプリングを行う
+   2. 設定された解析時間を超えた場合にサンプリングを終了
+5. 読み取った内容を外部ファイル等に出力する
+
+### Live Execution
 
 カメラを接続して、ライブで解析する場合は、`live.py` を実行する。  
 
@@ -111,7 +148,7 @@ python3 replay.py test/sample.mp4 --num-digits 4 --sampling-sec 5 --num-frames 3
 python live.py --device 1 --num-frames 10 --sampling-sec 2 --total-sampling-min 0.1 --format csv --save-frame --debug
 ```
 
-### live.py Arguments
+#### Arguments of live.py
 
 | 引数 | 説明 |  
 | --- | --- |  
@@ -124,9 +161,19 @@ python live.py --device 1 --num-frames 10 --sampling-sec 2 --total-sampling-min 
 | --save-frame | キャプチャしたフレームを保存するかどうか |
 | --debug | ログをデバッグモードにする場合は含める |
 
-## Program instructions
+#### Process Flow Configuration of live.py
 
-### File structure
+1. 指定された引数を元に設定を適用
+2. 動画の読み込み・フレームの分割
+   1. すでに分割済みのファイルがある場合は、再度分割するかの確認がされる
+   2. 読み込み動画やサンプリングに関する変数等を変更した場合は再分割するを選択すると良い
+3. 7セグメント表示器が写っている部分をクロップする
+   1. クロップ部分を選択後、確認のウィンドウが立ち上がるが小さい場合があるので注意
+   2. 確認ウィンドウがアクティブな状態で y/n のどちらかを押下する
+4. クロップした部分を解析して表示内容を読み取る
+5. 読み取った内容を外部ファイル等に出力する
+
+## File structure
 
 | ファイル | 説明 |
 | --- | --- |  
@@ -164,35 +211,6 @@ python live.py --device 1 --num-frames 10 --sampling-sec 2 --total-sampling-min 
 | `gui/workers/replay_detect_worker.py` | 動画ファイル解析の推論のバックグランド処理 |
 | `gui/widgets/mpl_canvas_widget.py` | グラフを表示するウィジェット |
 | `test/something` | テスト用ファイル |
-
-### Process flow configuration
-
-プログラムの処理の流れは以下の通りである。  
-GUI内の処理もCLI処理に準拠したフローで実行される
-
-**`live.py`**
-
-1. 指定された引数を元に設定を適用
-2. カメラ画角の確認
-3. 7セグメント表示器が写っている部分をクロップする
-   1. クロップ部分を選択後、確認のウィンドウが立ち上がるが小さい場合があるので注意
-   2. 確認ウィンドウがアクティブな状態で y/n のどちらかを押下する
-4. クロップした部分を解析して表示内容を読み取る
-   1. 設定された頻度でサンプリングを行う
-   2. 設定された解析時間を超えた場合にサンプリングを終了
-5. 読み取った内容を外部ファイル等に出力する
-
-**`replay.py`**
-
-1. 指定された引数を元に設定を適用
-2. 動画の読み込み・フレームの分割
-   1. すでに分割済みのファイルがある場合は、再度分割するかの確認がされる
-   2. 読み込み動画やサンプリングに関する変数等を変更した場合は再分割するを選択すると良い
-3. 7セグメント表示器が写っている部分をクロップする
-   1. クロップ部分を選択後、確認のウィンドウが立ち上がるが小さい場合があるので注意
-   2. 確認ウィンドウがアクティブな状態で y/n のどちらかを押下する
-4. クロップした部分を解析して表示内容を読み取る
-5. 読み取った内容を外部ファイル等に出力する
 
 ## Model Training
 
