@@ -124,7 +124,7 @@ curl https://github.com/EbinaKai/Sichiribe/releases/download/v0.1.2/model_100x10
 
 | ファイル | 説明 |
 | --- | --- |  
-| `app.py` | GUIアプリケーションの起動 |
+| `Sichiribe.py` | GUIアプリケーションの起動 |
 | `live.py` | 外部カメラからライブ解析 |
 | `replay.py` | 動画ファイルから解析 |
 | `cores/common.py` | コアな汎用的な機能の関数詰め合わせ |
