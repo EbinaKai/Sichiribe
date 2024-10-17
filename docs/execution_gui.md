@@ -3,7 +3,7 @@
 GUIでの諸項目の実行を行うには以下のコマンドを実行する。
 
 ```bash
-python app.py
+python Sichiribe.py
 ```
 
 階層構造及び画面フローを以下に示す。
