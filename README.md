@@ -61,8 +61,8 @@ chmod +x install.sh
 
 ```bash
 # リポジトリのクローン
-git clone git@github.com:EbinaKai/7segDetector.git
-cd 7segDetector
+git clone https://github.com/EbinaKai/Sichiribe.git
+cd Sichiribe
 
 # 仮想環境の作成
 python3 -m venv env
@@ -78,12 +78,17 @@ pip install -r requirements.txt
 pip install tensorflow # フルバージョンのtensorflowを用いる場合
 pip install tensorflow-metal # macosでGPUを用いる場合はこれも
 
-pip install tflite-runtime # linux環境でモデルの学習をしない場合
+pip install tflite-runtime # linux環境かつモデルの学習をしない場合
 ```
 
 ### Install model
 
 学習済モデルは、[Github | Release v0.1.2](https://github.com/EbinaKai/Sichiribe/releases/tag/v0.1.2) においてあるので、そこからダウンロードして `model/` フォルダを作成して設置する。
+
+```bash
+mkdir model
+curl https://github.com/EbinaKai/Sichiribe/releases/download/v0.1.2/model_100x100.tflite -o model/model_100x100.tflite
+```
 
 ## Execution
 
