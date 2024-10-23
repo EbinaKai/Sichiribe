@@ -12,7 +12,6 @@
    <a href="#init">Installation</a> ･ 
    <a href="#references">References</a> ･ 
    <a href="#license">License</a>
-</p>
 
 </div>
 
@@ -36,8 +35,6 @@
 - [MacOS用のビルド(署名なし)](https://github.com/EbinaKai/Sichiribe/releases/tag/v0.1.5)
 
 ## インストール
-
-### Installation
 
 とりあえず下記のスクリプトを使えば、一括でGUIアプリがビルドされる。スクリプト内で必要なものはインストールされるため、このリポジトリをクローンする必要はない。  
 
@@ -128,7 +125,7 @@ curl -L -o model/model_100x100.tflite https://github.com/EbinaKai/Sichiribe/rele
 
 | ファイル | 説明 |
 | --- | --- |  
-| `Sichiribe.py` | GUIアプリケーションの起動。app.pyをリネームした。 |
+| `` | GUIアプリケーションの起動。 |
 | `live.py` | 外部カメラからライブ解析 |
 | `replay.py` | 動画ファイルから解析 |
 | `cores/common.py` | コアな汎用的な機能の関数詰め合わせ |

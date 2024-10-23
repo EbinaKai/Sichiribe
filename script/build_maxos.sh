@@ -16,8 +16,10 @@ else
     export CPPFLAGS="-I/opt/homebrew/opt/gettext/include"
 fi
 
+
 # ビルド
 echo "Starting build with Nuitka for $ARCH..."
+mv app.py Sichiribe.py
 python -m nuitka \
     --remove-output \
     --macos-create-app-bundle \
@@ -29,6 +31,7 @@ python -m nuitka \
     --include-data-dir=./gui/images=gui/images \
     --macos-app-protected-resource="NSCameraUsageDescription:Camera access" \
     Sichiribe.py
+mv app.py Sichiribe.py
 
 # Nuitkaのビルドが成功したかどうかを確認
 # パッケージング
